@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Categories;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
 
 class CategoriesController extends Controller
 {
@@ -21,12 +22,16 @@ class CategoriesController extends Controller
             $model = Categories::where(['id'=>$id])->get();
             $result['categories_name'] = $model[0]->categories_name;
             $result['categories_slug'] = $model[0]->categories_slug;            
+            $result['categories_parent'] = $model[0]->categories_parent;            
+            //$result['categories_image'] = $model[0]->categories_image;            
             $result['categories_id'] = $model[0]->id;
         }else{            
             $result['categories_name'] = '';
             $result['categories_slug'] = '';
+            $result['categories_parent'] = '';
             $result['categories_id'] = '';
         }
+        $result['categories_list'] = DB::table('categories')->select('categories_name','id')->get();
         return view('admin/categories/create',$result);
     }
 
@@ -47,6 +52,7 @@ class CategoriesController extends Controller
         }
        
         $model->categories_name = $request->post('categories_name');
+        $model->categories_parent = $request->post('categories_parent');            
         $model->categories_slug = Str::slug($request->post('categories_slug'));
         $model->save();
         $request->session()->flash('message',$message);

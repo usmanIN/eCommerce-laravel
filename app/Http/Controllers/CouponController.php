@@ -21,12 +21,20 @@ class CouponController extends Controller
             $result['coupon_title'] = $model[0]->coupon_title;
             $result['coupon_code'] = $model[0]->coupon_code;            
             $result['coupon_value'] = $model[0]->coupon_value;            
+            $result['coupon_type'] = $model[0]->coupon_type;
+            $result['coupon_min_order'] = $model[0]->coupon_min_order;
+            $result['is_one_time'] = $model[0]->is_one_time;
             $result['coupon_id'] = $model[0]->id;
+            
         }else{            
             $result['coupon_title'] = '';
             $result['coupon_code'] = '';
             $result['coupon_value'] = '';            
             $result['coupon_id'] = '';
+            $result['coupon_type'] = '';
+            $result['coupon_min_order'] = '';
+            $result['is_one_time'] = '';
+            
         }
         return view('admin/coupons/create',$result);
     }
@@ -38,6 +46,7 @@ class CouponController extends Controller
             'coupon_title' => 'required',            
             'coupon_code' => 'required|unique:coupons,coupon_code,'.$request->post('coupon_id'),            
             'coupon_value'=> 'required',
+            'coupon_type' => 'required',
         ]);
                         
         if($request->post('coupon_id') > 0){
@@ -51,6 +60,9 @@ class CouponController extends Controller
         $model->coupon_title = $request->post('coupon_title');
         $model->coupon_code = $request->post('coupon_code');
         $model->coupon_value = $request->post('coupon_value');
+        $model->coupon_type  = $request->post('coupon_type');
+        $model->coupon_min_order = $request->post('coupon_min_order');
+        $model->is_one_time = $request->post('is_one_time');            
         $model->save();
         $request->session()->flash('message',$message);
 

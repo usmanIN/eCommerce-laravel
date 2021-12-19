@@ -5,6 +5,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\CategoriesController;
 use App\Http\Controllers\CouponController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\BrandController;
 
 /*
 |--------------------------------------------------------------------------
@@ -36,6 +37,7 @@ Route::post('/register', [AdminController::class,'register']);
 Route::group(['middleware'=>'admin_auth','prefix'=>'admin'],function(){
 
      Route::get('dashboard',[AdminController::class,'dashboard'])->name('admin.dashboard');     
+
      Route::prefix('category')->group(function(){
         Route::get('/',[CategoriesController::class,'index']);
         Route::get('/create',[CategoriesController::class,'create']);
@@ -43,6 +45,14 @@ Route::group(['middleware'=>'admin_auth','prefix'=>'admin'],function(){
         Route::post('/add', [CategoriesController::class,'store'])->name('category.add');  
         Route::get('delete/{id}',[CategoriesController::class,'destroy']);        
      });
+
+     Route::prefix('brand')->group(function(){
+      Route::get('/',[BrandController::class,'index']);
+      Route::get('/create',[BrandController::class,'create']);
+      Route::get('/create/{id}',[BrandController::class,'create']);
+      Route::post('/add', [BrandController::class,'store'])->name('brand.add');  
+      Route::get('delete/{id}',[BrandController::class,'destroy']);        
+   });
 
      Route::prefix('coupon')->group(function(){
         Route::get('/',[CouponController::class,'index']);
@@ -57,7 +67,9 @@ Route::group(['middleware'=>'admin_auth','prefix'=>'admin'],function(){
         Route::get('/create',[ProductController::class,'create']);
         Route::get('/create/{id}',[ProductController::class,'create']);
         Route::post('/add', [ProductController::class,'store'])->name('product.add');  
-        Route::get('delete/{id}',[ProductController::class,'destroy']);    
+        Route::get('delete/{id}',[ProductController::class,'delete']);    
+        Route::get("deleteAttribute/{id}",[ProductController::class,'deleteAttribute']);    
+        Route::get("deleteExtraImage/{id}",[ProductController::class,'deleteExtraImage']);    
         Route::get('/status/{type}/{id}',[ProductController::class,'status']);    
      });
 });

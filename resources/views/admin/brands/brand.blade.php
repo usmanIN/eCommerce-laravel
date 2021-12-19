@@ -7,15 +7,15 @@
 
     <!-- Page Heading -->
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800">Categories</h1>
+        <h1 class="h3 mb-0 text-gray-800">Brands</h1>
     </div>
     <!-- DataTales Example -->
     <div class="card shadow mb-4">
         <div class="card-header py-3">
             <!-- <h6 class="m-0 font-weight-bold text-primary">Categories</h6> -->
             
-            <a href="category/create">
-                <button class="btn btn-success">Add Categories</button>
+            <a href="brand/create">
+                <button class="btn btn-success">Add Brands</button>
             </a>    
             {{ session('message') }} 
         </div>
@@ -25,25 +25,28 @@
                     <thead>
                         <tr>
                             <th>Name</th>
-                            <th>Slug</th>
+                            <th>Image</th>
                             <th>Action</th>
                         </tr>
                     </thead>
                     <tfoot>
                         <tr>
                             <th>Name</th>
-                            <th>Slug</th>
+                            <th>Image</th>
                             <th>Action</th>
                         </tr>
                     </tfoot>
                     <tbody>    
                         @foreach($data as $list)
                         <tr>
-                            <th>{{$list->categories_name}}</th>
-                            <th>{{$list->categories_slug}}</th>      
+                            <th>{{$list->brands_name}}</th>
                             <th>
-                                <a href="category/create/{{ $list->id }}" class="btn btn-primary">Edit</a>
-                                <a href="category/delete/{{ $list->id }}" class="btn btn-danger" >Delete</a>                     
+                                <!-- {{$list->brands_image}} -->
+                                <img src="{{ asset('storage/media/'.$list->brands_image) }}" class="img-thumbnail" style="width:100px;" />
+                            </th>      
+                            <th>
+                                <a href="brand/create/{{ $list->id }}" class="btn btn-primary">Edit</a>
+                                <a href="brand/delete/{{ $list->id }}" class="btn btn-danger" >Delete</a>                     
                             </th>
                         </tr>
                         @endforeach                        
