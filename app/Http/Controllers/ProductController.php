@@ -6,6 +6,7 @@ use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
+use Storage;
 
 class ProductController extends Controller
 {
@@ -67,7 +68,7 @@ class ProductController extends Controller
         ]);
                         
         if($request->post('product_id') > 0){
-            $model = Product::where(['id'=>$request->post('product_id')])->first();
+            $model = DB::table("products")->where(['id'=>$request->post('product_id')])->first();
             $message = 'product updated!';
         }else{
             $model = new Product();
@@ -75,6 +76,13 @@ class ProductController extends Controller
         }   
 
         if($request->hasfile('product_image')){
+
+            $tableImage = DB::table("products_images")->where(['id'=>$request->post('product_id')])->get();
+            if($tableImage->count() > 0 && $tableImage[0]->product_image!=''){                
+                if(Storage::exists("/public/media/".$tableImage[0]->product_image)){
+                    Storage::delete("/public/media/".$tableImage[0]->product_image);
+                }
+            }
             $model->product_image = $this->getFile($request->file('product_image'));
         }
 
@@ -104,7 +112,13 @@ class ProductController extends Controller
                 $product_extra_images['product_images'] = $this->getFile($value);                
                 
                 if($request->post('product_extra_id')[$key]!=''){
-                    DB::table('products_images')->where(['id'=>$request->post('product_extra_id')[$key]])->update($product_extra_images);                            
+
+                    $tableImage = DB::table('products_images')->where(['id'=>$request->post('product_extra_id')[$key]]);
+
+                    if(Storage::exists("/public/media/".$tableImage->get()[0]->product_images)){
+                        Storage::delete("/public/media/".$tableImage->get()[0]->product_images);
+                    }
+                    $tableImage->update($product_extra_images);                            
                 }else{
                     DB::table('products_images')->insert($product_extra_images);
                 }
@@ -122,7 +136,13 @@ class ProductController extends Controller
                 $product_attr_array['image'] = $this->getFile($request->file('product_attr_image')[$key]); // Product Attributes Image                )
             }                                
             if($request->post('product_attr_id')[$key]!=''){
-                DB::table('products_attribute')->where(['id'=>$request->post('product_attr_id')[$key]])->update($product_attr_array);                            
+
+                $tableImage = DB::table('products_attribute')->where(['id'=>$request->post('product_attr_id')[$key]]);
+                if(Storage::exists("/public/media/".$tableImage->get()[0]->image)){
+                    Storage::delete("/public/media/".$tableImage->get()[0]->image);
+                }
+
+                $tableImage->update($product_attr_array);                            
             }else{
                 DB::table('products_attribute')->insert($product_attr_array);
             }
@@ -135,20 +155,39 @@ class ProductController extends Controller
 
     public function delete(Request $request, $id)//product $product)
     {
-        $model = Product::where(['id'=>$id]);
+        $model = DB::table('products')->where(['id'=>$id]);
+
+        if($model->get()[0]->product_image!=''){            
+            if(Storage::exists("/public/media/".$model->get()[0]->product_image)){
+                Storage::delete("/public/media/".$model->get()[0]->product_image);
+            }
+        }
         $model->delete();
         $request->session()->flash('message','product Deleted!');
         return redirect('admin/product');        
     }
     
     public function deleteAttribute($id){
+    
+        $model = DB::table("products_attribute")->where(['id'=>$id]);
 
-        if(DB::table("products_attribute")->delete($id)){
+        if(Storage::exists("/public/media/".$model->get()[0]->image)){
+            Storage::delete("/public/media/".$model->get()[0]->image);
+        }
+
+        if($model->delete()){
             return response()->json(["success"=>true]);
         }
         return response()->json(["success"=>false]);
     }
+
     public function deleteExtraImage($id){
+
+        $model = DB::table("products_images")->where(['id'=>$id]);
+
+        if(Storage::exists("/public/media/".$model->get()[0]->product_images)){
+            Storage::delete("/public/media/".$model->get()[0]->product_images);
+        }
 
         if(DB::table("products_images")->delete($id)){
             return response()->json(["success"=>true]);

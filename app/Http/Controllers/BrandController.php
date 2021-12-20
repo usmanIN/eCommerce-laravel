@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Brand;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Storage;
 
 class BrandController extends Controller
 {
@@ -62,8 +64,11 @@ class BrandController extends Controller
 
     public function destroy(Request $request, $id)//brands $brands)
     {
-        $model = Brands::where(['id'=>$id]);
-        $model->delete();
+        $tableImage = DB::table("brands")->where(['id'=>$id]);        
+        if(Storage::exists("/public/media/".$tableImage->get()[0]->brands_image)){
+            Storage::delete("/public/media/".$tableImage->get()[0]->brands_image);
+        }
+        $tableImage->delete();
         $request->session()->flash('message','Brands Deleted!');
         return redirect('admin/brand');        
     }
