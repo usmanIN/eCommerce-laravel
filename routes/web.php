@@ -6,6 +6,9 @@ use App\Http\Controllers\CategoriesController;
 use App\Http\Controllers\CouponController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\BrandController;
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\ColorController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -18,21 +21,19 @@ use App\Http\Controllers\BrandController;
 |
 */
 
-Route::get('/', function () { 
-    return view('pages.home'); 
-});
-Route::get('/about', function () { 
-    return view('pages.about'); 
-});
 
+Route::get('/',[HomeController::class,'index']);
+Route::get('/about',[HomeController::class,'about']);
+Route::get('/contact',[HomeController::class,'contact']);
+Route::get('/product/{slug}',[HomeController::class,'display']);
 
-Route::get('/contact', function () { return view('pages.contact'); });
 
 Route::get('/login',[AdminController::class,'index']);
 Route::post('/login', [AdminController::class,'login']);
-
 Route::get('/register',[AdminController::class,'signup']);
 Route::post('/register', [AdminController::class,'register']);
+
+
 
 Route::group(['middleware'=>'admin_auth','prefix'=>'admin'],function(){
 
@@ -45,6 +46,16 @@ Route::group(['middleware'=>'admin_auth','prefix'=>'admin'],function(){
         Route::post('/add', [CategoriesController::class,'store'])->name('category.add');  
         Route::get('delete/{id}',[CategoriesController::class,'destroy']);        
      });
+
+     Route::prefix('color')->group(function(){
+      Route::get('/',[ColorController::class,'index']);
+      Route::get('/create',[ColorController::class,'create']);
+      Route::get('/create/{id}',[ColorController::class,'create']);
+      Route::post('/add', [ColorController::class,'store'])->name('color.add');  
+      Route::get('/delete/{id}',[ColorController::class,'destroy']);        
+      Route::get('/status/{type}/{id}',[ColorController::class,'status']);    
+   });
+
 
      Route::prefix('brand')->group(function(){
       Route::get('/',[BrandController::class,'index']);

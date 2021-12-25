@@ -176,6 +176,7 @@
                                     <label for="product_attr_image">Image</label>
                                     <input type="file" class="form-control" id="product_attr_image" name="product_attr_image[]">
                                 </div>
+                                
                                 @if($list->image!='')
                                 <div class="col">                                   
                                    <img src="{{ asset('storage/media/'.$list->image) }}" class="img-thumbnail" style="width:100px;" />
@@ -188,18 +189,31 @@
                                 <input type="text" class="form-control" id="product_attr_sku" name="product_attr_sku[]" value="{{ $list->SKU}}" required>
                                 </div>
                                 <div class="col">
-                                <label for="product_attr_price">Price</label>
-                                <input type="text" class="form-control" id="product_attr_price" name="product_attr_price[]" value="{{ $list->Price}}">
+                                <label for="product_attr_qunatity">Quantity</label>
+                                <input type="text" class="form-control" id="product_attr_qunatity" name="product_attr_qunatity[]" value="{{ $list->Quantity}}">
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col">
-                                <label for="product_attr_qunatity">Quantity</label>
-                                <input type="text" class="form-control" id="product_attr_qunatity" name="product_attr_qunatity[]" value="{{ $list->Quantity}}">
+                                <label for="product_attr_price">Price</label>
+                                <input type="text" class="form-control" id="product_attr_price" name="product_attr_price[]" value="{{ $list->Price}}">
                                 </div>
                                 <div class="col">
                                 <label for="product_attr_mrp">MRP</label>
                                 <input type="text" class="form-control" id="product_attr_mrp" name="product_attr_mrp[]" value="{{ $list->MRP}}">                                
+                                </div>                                
+                                <div class="col">
+                                <label for="product_attr_color">Color</label>
+                                <select class="form-control" id="product_attr_color" name="product_attr_color[]">                                
+                                   <option value="">Select Color</option>
+                                   @foreach($color as $key)                                                                       
+                                       @if($list->color ==  $key->id)
+                                       <option value="{{ $key->id }}" selected>{{$key->color_name}}</option>
+                                       @else
+                                       <option value="{{ $key->id }}">{{$key->color_name}}</option>
+                                       @endif
+                                    @endforeach
+                                 </select>
                                 </div>
                             </div>
                         </div>
@@ -223,7 +237,12 @@
    }
     
     for (let index = 0; index < product_box.getElementsByTagName("input").length; index++) {       
-         product_box.getElementsByTagName("input")[index].setAttribute('value','');       
+            product_box.getElementsByTagName("input")[index].setAttribute('value','');       
+    }
+    
+    let select = product_box.getElementsByTagName("select")[0].options;
+    for(var i = 0; i < select.length; i++){
+      select[i].removeAttribute("selected");
     }
     
     function addBox(){

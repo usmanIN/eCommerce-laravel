@@ -53,6 +53,7 @@ class ProductController extends Controller
 
         $result['category'] =  DB::table('categories')->get();
         $result['brand'] =  DB::table('brands')->get();
+        $result['color'] =  DB::table('colors')->get();
         
         return view('admin/products/create',$result);
     }
@@ -60,7 +61,6 @@ class ProductController extends Controller
     
     public function store(Request $request)
     {       
-    
         $request->validate([
             'product_name' => 'required',
             'product_image' => ($request->post('product_id') > 0)?'mimes:jpeg,jpg,png':'required|mimes:jpeg,jpg,png',
@@ -68,7 +68,7 @@ class ProductController extends Controller
         ]);
                         
         if($request->post('product_id') > 0){
-            $model = DB::table("products")->where(['id'=>$request->post('product_id')])->first();
+            $model = Product::where(['id'=>$request->post('product_id')])->first();
             $message = 'product updated!';
         }else{
             $model = new Product();
@@ -132,6 +132,8 @@ class ProductController extends Controller
             $product_attr_array['MRP'] = $request->post('product_attr_mrp')[$key]; // Product Attributes MRP
             $product_attr_array['Price'] = $request->post('product_attr_price')[$key]; // Product Attributes Price
             $product_attr_array['Quantity'] = $request->post('product_attr_qunatity')[$key]; // Product Attributes Quantity
+            $product_attr_array['color'] = $request->post('product_attr_color')[$key]; // Product Attributes Quantity
+            
             if(isset($request->file('product_attr_image')[$key])){                                
                 $product_attr_array['image'] = $this->getFile($request->file('product_attr_image')[$key]); // Product Attributes Image                )
             }                                
