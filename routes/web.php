@@ -26,6 +26,7 @@ Route::get('/',[HomeController::class,'index']);
 Route::get('/about',[HomeController::class,'about']);
 Route::get('/contact',[HomeController::class,'contact']);
 Route::get('/product/{slug}',[HomeController::class,'display']);
+Route::post('/cart_add',[HomeController::class,'store']);
 
 
 Route::get('/login',[AdminController::class,'index']);

@@ -26,11 +26,14 @@
             <h3>{{ $products[0]->product_name }} </h3>
             <hr/>
             @if(isset($products_attributes))
-            <p>
-                <label class="font-weight-bold">Price: </label>
-                <span class="text-danger">  <del>Rs {{$products_attributes[0]->Price }} </del> </span><span class="text-success">Rs {{$products_attributes[0]->Price }}</span> 
-            </p>
+                @foreach($products_attributes as $list)
+                    <p class="products_attribute_price">
+                        <label class="font-weight-bold">Price: </label>
+                        <span class="text-danger">  <del>Rs {{$list->Price }} </del> </span><span class="text-success">Rs {{$list->Price }}</span> 
+                    </p>
+                @endforeach    
             @endif
+
             <p>
                 <label class="font-weight-bold">Model: </label>
                 <span class="text-success"> {{$products[0]->product_model }}</span>
@@ -39,24 +42,28 @@
                 <label class="font-weight-bold">Description: </label>
                 {{ $products[0]->product_short_description }}
             </p>                    
-            @if(isset($colors))
+            <p>
+                <div id="button_quantity">
+                    <span class="btn btn-primary btn-sm" id="button_quantity_sub"> - </span>
+                    <span class="btn btn-link btn-sm" id="button_quantity_text"> 1 </span>
+                    <span class="btn btn-primary btn-sm" id="button_quantity_add"> + </span> 
+                </div>   
+            </p>
             <p><label class="font-weight-bold">Color: </label>
                 <div class="d-flex justify-content-start">
-                @foreach($products_attributes as $key => $list)                        
-                    @foreach($colors as $value)
-                        @if($value[$key]->id==$list->color)
-                            <a href="javscript:void(0)" class="p-3" style="background-color:{{ strtolower($value[$key]->color_name) }};"></a>                            
-                        @endif    
-                    @endforeach                    
+                @foreach($products_attributes as $key => $list)                                            
+                    <span class="p-3 mr-2 product_attribute_color" style="background-color:{{ strtolower($list->color_name) }};" onClick="produc_attribute_id('{{ $list->id }}','{{$key}}')"></span>                            
                 @endforeach
                 </div>
-            </p>    
-            @endif                
+            </p>                
             <p>
                 <label class="font-weight-bold">Categories: </label>
                 <a  href="/categories/{{ $categories[0]->categories_slug }} " class="btn btn-link btn-sm">{{ $categories[0]->categories_name }} </a>
             </p>
-            <a  href="#" class="btn btn-outline-primary btn-sm"> Add to Cart </a>
+            <p>
+                <div id="message"></div>
+            </p>
+            <a href="javascript:void(0)" class="btn btn-outline-primary btn-sm" onClick="add_to_cart()"> Add to Cart </a>
         </div>
     </div>           
     <p>
@@ -65,23 +72,98 @@
     </p>
 </div>  
 <p></p><p></p>
-@if(isset($related_products))
-<div class="container">
-    <h5>Related Product</h5>
-    <hr/>
-    <div class="d-flex justify-content-start">
-        @foreach($related_products as $list)
-            @if($list->id!=$products[0]->id)
-                <div class="mr-2 card">
-                    <div class="card-body">
-                        <p>{{ $list->product_name }}</p>
-                        <a href="/product/{{$list->product_slug}}" class="btn btn-primary btn-sm btn-block">Click Here</a>
+    @if(isset($related_products))
+    <div class="container">
+        <h5>Related Product</h5>
+        <hr/>
+        <div class="d-flex justify-content-start">
+            @foreach($related_products as $list)
+                @if($list->id!=$products[0]->id)
+                    <div class="mr-2 card">
+                        <div class="card-body">
+                            <p>{{ $list->product_name }}</p>
+                            <a href="/product/{{$list->product_slug}}" class="btn btn-primary btn-sm btn-block">Click Here</a>
+                        </div>
                     </div>
-                </div>
-            @endif    
-
-        @endforeach
+                @endif    
+            @endforeach
+        </div>
     </div>
-</div>
-@endif
+    @endif
+    <form id ="formCart">
+        @csrf
+        <input type="hidden" name="product_id" value="{{ $products[0]->id }}">
+        <input type="hidden" name="product_quantity">
+        <input type="hidden" name="product_attributes_id">
+    </form>
+@endsection
+
+@section('footerContent')
+
+
+<script type="text/javascript">
+
+
+let formCart = document.getElementById("formCart").getElementsByTagName("input");        
+    formCart[2].value = 1;
+
+    let price = document.querySelectorAll(".products_attribute_price");
+    price.forEach(element => {element.style.display = 'none';});
+    price[0].style.display = 'block';
+
+    // document.querySelectorAll(".product_attribute_color").forEach(function(element ,index){
+    //     element.addEventListener("click",function(){
+    //         price.forEach(element => { element.style.display = 'none'; });
+    //         price[index].style.display = 'block';            
+    //     });
+    // });
+
+    const produc_attribute_id = (id,key) =>{            
+        price.forEach(element => { element.style.display = 'none'; });
+        price[key].style.display = 'block';            
+        formCart[3].value = id;
+    }
+
+    let button = document.getElementById("button_quantity").getElementsByTagName("span");        
+    let quantity = 1;
+
+        button[0].addEventListener("click",function(){
+            quantity--;
+            if(quantity < 1){ quantity = 1; }                    
+            button[1].innerText = quantity;
+            formCart[2].value = quantity;
+        });
+
+        button[2].addEventListener("click",function(){
+            quantity++;
+            if(quantity > 10){ quantity = 10; }                    
+            button[1].innerText = quantity;
+            formCart[2].value = quantity;                
+        });
+
+    function add_to_cart(){
+       let  form = document.getElementById("formCart");
+        if(formCart[3].value==''){
+            $("#message").text('Select the Color');
+        }else{
+            $.ajax({
+                url:'/cart_add',
+                data: $('#formCart').serialize(),
+                type: "post",
+                success:function(response){
+                    if(response.success){
+                        $("#message").text(response.message);
+                    }else{
+                        $("#message").text(response.message);
+                    }
+                },
+                error:function(response){
+                    console.error(response);
+                }
+            });
+        }
+
+    }
+</script>
+
 @endsection
